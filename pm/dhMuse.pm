@@ -42,6 +42,7 @@
 #	&wav_to_mp3		# Convert wave file to mp3 and tag it
 #	&tag_mp3		# Tag an existing mp3 file (uses id3hack)
 #	&wait_for_CR	# Print a message and wait for user to press ENTER
+#	&fileify	    # Convert string to filename by removing cruft and capitalising words
 #
 #	(c) 2008 David Haworth
 package dhMuse;
@@ -75,6 +76,7 @@ qw(
 	&wav_to_mp3
 	&tag_mp3
 	&wait_for_CR
+	&fileify
 );
 
 # Public variables.
@@ -153,7 +155,7 @@ sub iswordsep
 }
 
 # fileify(s)
-# (INTERNAL)
+# (PUBLIC)
 #	- converts the string s (usually a title) into a filename by removing
 #	  all the non-permitted characters and uppercasing the first character
 #	  after each space.
@@ -198,17 +200,21 @@ sub fileify
 sub get_filename
 {
 	my ($trackno, $title, $suffix) = @_;
+	my $tno = $trackno + $trackplus;
 	my $sep = "";
-	my $encfile = $filename;
+	my $encname = $filename;
+	my $encfile;
+
 	$filename = "AUTO";
 
 	$sep = "/" if ( $filedir ne "" );
 
-	if ( $encfile eq "AUTO" )
+	if ( $encname eq "AUTO" )
 	{
-		my $tno = $trackno + $trackplus;
-		$encfile = $filedir.$sep.sprintf("%02d-",$tno).fileify($title).".".$suffix;
+		$encname = fileify($title);
 	}
+
+	$encfile = $filedir.$sep.sprintf("%02d-",$tno).$encname.".".$suffix;
 
 	return $encfile;
 }
@@ -230,18 +236,11 @@ sub make_rip_cmd
 #	- returns the command that encodes a wav stream on stdin to mp3
 sub make_mp3_cmd
 {
-	my ($mp3file, $title, $trackno) = @_;
-	my $cmd;
+	my ($mp3file, $title) = @_;
 
 	print STDERR "make_mp3_cmd(".$mp3file.", ".$title.")\n" if ( $DBG != 0 );
 
-	$cmd = "lame -b ".$bitrate." --quiet --tn ".$trackno." --tg ".$genre;
-	$cmd .= " --tl \"".$album."\""	if ( $album ne "" );
-	$cmd .= " --ta \"".$artist."\""	if ( $artist ne "" );
-	$cmd .= " --tt \"".$title."\""	if ( $title ne "" );
-	$cmd .= " --ty \"".$year."\""	if ( $year ne "" );
-	$cmd .= " --tc \"".$note."\""	if ( $note ne "" );
-    $cmd .= $lame_opts." - ".$mp3file;
+	return	"lame -b ".$bitrate." --quiet ".$lame_opts." - ".$mp3file;
 }
 
 # make_ogg_cmd
@@ -250,9 +249,10 @@ sub make_mp3_cmd
 sub make_ogg_cmd
 {
 	my ($trackno, $title, $oggfile) = @_;
+	my $tno = $trackno + $trackplus;
 
 	my $cmd = "oggenc -q ".$quality." --quiet ".$ogg_opts.
-			" -G ".$genre." -N ".$trackno;
+			" -G ".$genre." -N ".$tno;
 	$cmd .= " -l \"".$album."\""	if ( $album ne "" );
 	$cmd .= " -a \"".$artist."\""	if ( $artist ne "" );
 	$cmd .= " -t \"".$title."\""	if ( $title ne "" );
@@ -307,9 +307,7 @@ sub rip_mp3
 
 	print STDERR "rip_mp3(".$trackno.", ".$mp3file.", ".$title.")\n" if ($DBG != 0);
 
-	do_cmd("mkdir -p $filedir");
-
-	my $cmd = make_rip_cmd($trackno) . " | " . make_mp3_cmd($mp3file, $title, $trackno);
+	my $cmd = make_rip_cmd($trackno) . " | " . make_mp3_cmd($mp3file, $title);
 
 	return do_cmd($cmd);
 }
@@ -320,8 +318,9 @@ sub rip_mp3
 sub tag_mp3
 {
 	my ($mp3file, $title, $trackno) = @_;
+	my $tno = $trackno + $trackplus;
 
-	my $cmd =	"id3hack -g ".$genre." -n ".$trackno;
+	my $cmd =	"id3hack -g ".$genre." -n ".$tno;
 	$cmd .= " -l \"".$album."\""	if ( $album ne "" );
 	$cmd .= " -a \"".$artist."\""	if ( $artist ne "" );
 	$cmd .= " -t \"".$title."\""	if ( $title ne "" );
@@ -386,11 +385,9 @@ sub wav_to_mp3
 
 	my $mp3file = get_filename($trackno, $title, "mp3");
 
-	do_cmd("mkdir -p $filedir");
-
-	my $cmd = make_cat_cmd($trackno) . " | " . make_mp3_cmd($mp3file, $title, $trackno);
+	my $cmd = make_cat_cmd($trackno) . " | " . make_mp3_cmd($mp3file, $title);
 	do_cmd($cmd);
-#	tag_mp3($mp3file, $title, $trackno);
+	tag_mp3($mp3file, $title, $trackno);
 }
 
 # wav_to_ogg
@@ -422,7 +419,7 @@ sub wait_for_CR
 	my ($msg)= @_;
 
 	print STDOUT $msg." Press ENTER to continue\n";
-	<>;
+	<STDIN>;
 }
 
 1;

@@ -1,0 +1,2 @@
+$jukebox = "/data/audio/jukebox/00-Artist";
+$dummy_run = "yes";
