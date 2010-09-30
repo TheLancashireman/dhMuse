@@ -23,6 +23,7 @@ if [ -f ${base}.wav ] ; then
 	exit 1
 fi
 
+echo 1 | cddbget > ${base}.cddb
 cdrdao read-toc --device /dev/cdrom --datafile ${base}.wav ${base}.toc
 cdparanoia -v 1- ${base}.wav
 flac -8 ${base}.wav
