@@ -68,11 +68,11 @@ $xml_titledir	= "";
 $xml_subtitle	= "";
 $xml_date		= "";
 $xml_source		= "";
-%xml_disclist;
-%xml_disctitle;
-%xml_tracklist;
-%xml_trackfile;
-%xml_comments;
+%xml_disclist	= ();
+%xml_disctitle	= ();
+%xml_tracklist	= ();
+%xml_trackfile	= ();
+%xml_comments	= ();
 
 my $errormsg	= "";
 my $outertag	= "";
