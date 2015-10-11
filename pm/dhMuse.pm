@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-#	ripcd.pm
+#	dhMuse.pm
 #
 #	A simple Perl package to make ripping CDs to MP3 easier.
 #
@@ -40,6 +40,7 @@
 #	&cd_to_mp3		# Rip CD, encode to mp3 and tag it
 #	&wav_to_ogg		# Convert wave file to ogg and tag it
 #	&wav_to_mp3		# Convert wave file to mp3 and tag it
+#	&pipe_to_ogg	# Convert piped stdout to ogg and tag it
 #	&tag_mp3		# Tag an existing mp3 file (uses id3hack)
 #	&wait_for_CR	# Print a message and wait for user to press ENTER
 #	&fileify	    # Convert string to filename by removing cruft and capitalising words
@@ -74,6 +75,7 @@ qw(
 	&cd_to_mp3
 	&wav_to_ogg
 	&wav_to_mp3
+	&pipe_to_ogg
 	&tag_mp3
 	&wait_for_CR
 	&fileify
@@ -367,6 +369,20 @@ sub cd_to_ogg
 	my $oggfile = get_filename($trackno, $title, "ogg");
 
 	$cmd = make_rip_cmd($trackno) . " | " . make_ogg_cmd($trackno, $title, $oggfile);
+
+	return do_cmd($cmd)
+}
+
+# pipe_to_ogg
+# (PUBLIC)
+#	- encodes a track from a pipeline as ogg and tags
+sub pipe_to_ogg
+{
+	my ($pipecmd, $trackno, $title) = @_;
+
+	my $oggfile = get_filename($trackno, $title, "ogg");
+
+	$cmd = $pipecmd . " | " . make_ogg_cmd($trackno, $title, $oggfile);
 
 	return do_cmd($cmd)
 }

@@ -12,7 +12,7 @@ my $tocfile = $ARGV[0];
 
 if ( open(TOCFILE, "<$tocfile") )
 {
-	my ($tocbase) = $tocfile =~ m{^.*/([^/]*)\.toc};
+	my ($tocbase) = $tocfile =~ m{^(.*)\.toc$};
 	while ( <TOCFILE> )
 	{
 		chomp;
