@@ -4,7 +4,7 @@ I'm an old-fashioned dude; I like to have my music on CD or vinyl, but I also li
 convenience of having portable copies of my music so that I can take it with me wherever
 I go (and keep backups just in case). Where I live, the law allows that. YMMV.
 
-The basic idea is this. Whcn I get a new album:
+The basic idea is this. When I get a new album:
 
 * I rip it to a FLAC file (multiple files for double albums).
 * I make an XML file (kinda) of the tracks.
@@ -34,5 +34,8 @@ The rest of the stuff in bin/ does assorted stuff with various formats. Some of 
 might be old. cd-to-mp3.pl should work like cd-to-ogg.pl but create MP3 files instead. You'll have to
 tweak the cfg file to make that work to your satisfaction. flac-to-ogg.pl should do the cd-to-ogg.pl
 step but without having the CD.
+
+The scripts are unashamedly linux-based. They might work on other operating systems
+if you have the right stuff installed.
 
 That's all the documentation you're going to get. Enjoy!
